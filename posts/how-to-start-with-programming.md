@@ -1,3 +1,9 @@
+---
+title: how-to-start-with-programming
+slug: how-to-start-with-programming
+meta: There have been several attempts to improve performance by avoiding the expensive prefetching and bootstrapping that have afflicted React-like frameworks. This is the notorious hydration problem described here.
+---
+
 Astro is a new approach to the current fervor in JavaScript: wringing more performance out of reactive front ends. It is developed by the same team that created the Snowpack build tool.
 
 There have been several attempts to improve performance by avoiding the expensive prefetching and bootstrapping that have afflicted React-like frameworks. This is the notorious hydration problem described here.
