@@ -18,8 +18,10 @@ const SinglePage: NextPage<IProps> = (props) => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <h1>{post?.title || ''}</h1>
-      <MDXRemote {...post?.content} />
+      <h1 className="font-semibold text-2xl py-5">{post?.title || ''}</h1>
+      <div className="prose pb-20">
+        <MDXRemote {...post?.content} />
+      </div>
     </div>
   );
 };
