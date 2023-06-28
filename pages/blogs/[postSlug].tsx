@@ -10,10 +10,17 @@ import path from 'path';
 import { ParsedUrlQuery } from 'querystring';
 import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
 import { serialize } from 'next-mdx-remote/serialize';
+// import { useRouter } from 'next/router';
 
 type IProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SinglePage: NextPage<IProps> = (props) => {
+  // if fallback options is true, can use isFallback params
+  // const router = useRouter();
+  // if (router.isFallback) {
+  //   return <p>Loading...</p>;
+  // }
+
   const { post } = props;
 
   return (
@@ -42,7 +49,16 @@ export const getStaticPaths: GetStaticPaths = () => {
 
   return {
     paths,
-    fallback: false,
+    /**
+     * fallback options:
+     *  1. false    ->  this will return 404 page for new unknown slug.
+     *  2. blocking ->  this will first see the slug and it will try to get
+     *                  data from static pages and if there is page it will first
+     *                  hang the browser and try to generate new page.
+     *  3. true     ->  return the fake page for some time and once the
+     *                  data is ready it will serve them page props.
+     */
+    fallback: 'blocking',
   };
 };
 
@@ -58,23 +74,29 @@ type Post = {
 };
 
 export const getStaticProps: GetStaticProps<Post> = async (context) => {
-  const { params } = context;
-  const { postSlug } = params as IstaticProps;
+  try {
+    const { params } = context;
+    const { postSlug } = params as IstaticProps;
 
-  const curFilePath = path.join(process.cwd(), 'posts/' + postSlug + '.md');
-  const curFileContent = fs.readFileSync(curFilePath, { encoding: 'utf-8' });
-  const source = await serialize(curFileContent, {
-    parseFrontmatter: true,
-  });
+    const curFilePath = path.join(process.cwd(), 'posts/' + postSlug + '.md');
+    const curFileContent = fs.readFileSync(curFilePath, { encoding: 'utf-8' });
+    const source = await serialize(curFileContent, {
+      parseFrontmatter: true,
+    });
 
-  return {
-    props: {
-      post: {
-        title: source.frontmatter.title as string,
-        content: source,
+    return {
+      props: {
+        post: {
+          title: source.frontmatter.title as string,
+          content: source,
+        },
       },
-    },
-  };
+    };
+  } catch (e) {
+    return {
+      notFound: true, // if static page not found, it will display 404 page
+    };
+  }
 };
 
 export default SinglePage;
