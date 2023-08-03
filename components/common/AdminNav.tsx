@@ -1,4 +1,4 @@
-import { useState, useRef, FC } from 'react';
+import { FC, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { IconType } from 'react-icons';
 import { RiMenuFoldFill, RiMenuUnfoldFill } from 'react-icons/ri';
@@ -10,28 +10,56 @@ interface IProps {
 
 const NAV_OPEN_WIDTH = 'w-60';
 const NAV_CLOSE_WIDTH = 'w-12';
+const NAV_VISIBILITY_LOCALSTORAGE_KEY = 'nav-visibility';
 
 const AdminNav: FC<IProps> = ({ navItems }) => {
   const navRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(true);
 
-  const handleOpenOrCloseNav = () => {
+  const toggleNav = (visibility: boolean) => {
     const { current } = navRef;
 
     if (!current) {
       return;
     }
 
-    if (visible) {
+    if (visibility) {
+      // close nav
       current.classList.remove(NAV_OPEN_WIDTH);
       current.classList.add(NAV_CLOSE_WIDTH);
     } else {
+      // open nav
       current.classList.remove(NAV_CLOSE_WIDTH);
       current.classList.add(NAV_OPEN_WIDTH);
     }
-
-    setVisible(!visible);
   };
+
+  const handleOpenOrCloseNav = () => {
+    toggleNav(visible);
+    const newVisibleState = !visible;
+    setVisible(newVisibleState);
+    localStorage.setItem(
+      NAV_VISIBILITY_LOCALSTORAGE_KEY,
+      JSON.stringify(newVisibleState)
+    );
+  };
+
+  useEffect(() => {
+    const visibleState = localStorage.getItem(NAV_VISIBILITY_LOCALSTORAGE_KEY);
+
+    if (visibleState !== null) {
+      try {
+        const newVisibleState = JSON.parse(visibleState);
+        toggleNav(!newVisibleState);
+        setVisible(newVisibleState);
+      } catch (err) {
+        console.error(err);
+        setVisible(true);
+      }
+    } else {
+      setVisible(true);
+    }
+  }, []);
 
   return (
     <nav
