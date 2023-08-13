@@ -27,6 +27,11 @@ const AdminLayout: FC<IProps> = ({ children }) => {
     <div className="flex">
       <AdminNav {...{ navItems }} />
       <div className="flex-1 p-4">{children}</div>
+      <Link href="/admin/post/create">
+        <a className="bg-secondary-dark dark:bg-secondary-light text-primary dark:text-primary-dark fixed z-10 right-10 bottom-10 p-3 rounded-full hover:scale-90 shadow-sm transition">
+          <AiOutlineFileAdd size={24} />
+        </a>
+      </Link>
     </div>
   );
 };
