@@ -1,13 +1,14 @@
 import { FC } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
 import ToolBar from './ToolBar';
 
 interface IProps {}
 
 const Editor: FC<IProps> = () => {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Underline],
   });
 
   return (

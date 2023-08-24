@@ -71,37 +71,47 @@ const ToolBar: FC<IProps> = ({ editor }) => {
 
       <div className="h-4 w-[1px] bg-secondary-dark dark:bg-secondary-light mx-8"></div>
       <div className="flex items-center space-x-3">
-        <Button>
+        <Button onClick={() => getFocusedEditor(editor).toggleBold().run()}>
           <BsTypeBold />
         </Button>
-        <Button>
+        <Button onClick={() => getFocusedEditor(editor).toggleItalic().run()}>
           <BsTypeItalic />
         </Button>
-        <Button>
+        <Button
+          onClick={() => getFocusedEditor(editor).toggleUnderline().run()}
+        >
           <BsTypeUnderline />
         </Button>
-        <Button>
+        <Button onClick={() => getFocusedEditor(editor).toggleStrike().run()}>
           <BsTypeStrikethrough />
         </Button>
       </div>
       <div className="h-4 w-[1px] bg-secondary-dark dark:bg-secondary-light mx-8"></div>
       <div className="flex items-center space-x-3">
-        <Button>
+        <Button
+          onClick={() => getFocusedEditor(editor).toggleBlockquote().run()}
+        >
           <RiDoubleQuotesL />
         </Button>
-        <Button>
+        <Button onClick={() => getFocusedEditor(editor).toggleCode().run()}>
           <BsCode />
         </Button>
-        <Button>
+        <Button
+          onClick={() => getFocusedEditor(editor).toggleCodeBlock().run()}
+        >
           <BsBraces />
         </Button>
         <Button>
           <BsLink45Deg />
         </Button>
-        <Button>
+        <Button
+          onClick={() => getFocusedEditor(editor).toggleOrderedList().run()}
+        >
           <BsListOl />
         </Button>
-        <Button>
+        <Button
+          onClick={() => getFocusedEditor(editor).toggleBulletList().run()}
+        >
           <BsListUl />
         </Button>
       </div>
