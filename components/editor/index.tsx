@@ -11,7 +11,7 @@ const Editor: FC<IProps> = () => {
   });
 
   return (
-    <div>
+    <div className="p-3 dark:bg-primary-dark bg-primary transition">
       <ToolBar editor={editor} />
       <EditorContent editor={editor} />
     </div>
