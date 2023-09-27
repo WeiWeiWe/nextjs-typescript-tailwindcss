@@ -12,12 +12,13 @@ import {
   BsTypeItalic,
   BsTypeUnderline,
   BsImageFill,
-  BsLink45Deg,
   BsYoutube,
 } from 'react-icons/bs';
 import DropdownOptions from '../../common/DropdownOptions';
 import Button from './Button';
+import InsertLink from '../Link/InsertLink';
 import { getFocusedEditor } from '../editorUtils';
+import { linkOption } from '../Link/LinkForm';
 
 interface IProps {
   editor: Editor | null;
@@ -54,6 +55,20 @@ const ToolBar: FC<IProps> = ({ editor }) => {
     if (editor?.isActive('heading', { level: 3 })) return 'Heading 3';
 
     return 'Paragraph';
+  };
+
+  const handleLinkSubmit = ({ url, openInNewTab }: linkOption) => {
+    const { commands } = editor;
+    if (openInNewTab) {
+      commands.setLink({
+        href: url,
+        target: '_blank',
+      });
+    } else {
+      commands.setLink({
+        href: url,
+      });
+    }
   };
 
   const Head = () => {
@@ -116,9 +131,7 @@ const ToolBar: FC<IProps> = ({ editor }) => {
         >
           <BsBraces />
         </Button>
-        <Button>
-          <BsLink45Deg />
-        </Button>
+        <InsertLink onSubmit={handleLinkSubmit} />
         <Button
           active={editor.isActive('orderedList')}
           onClick={() => getFocusedEditor(editor).toggleOrderedList().run()}
