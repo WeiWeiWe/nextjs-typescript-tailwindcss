@@ -13,6 +13,7 @@
     "@tiptap/extension-link": "^2.1.11",
     "@tiptap/extension-placeholder": "^2.1.7",
     "@tiptap/extension-underline": "^2.1.7",
+    "@tiptap/extension-youtube": "^2.1.11",
     "@tiptap/pm": "^2.0.4",
     "@tiptap/react": "^2.0.4",
     "@tiptap/starter-kit": "^2.0.4",

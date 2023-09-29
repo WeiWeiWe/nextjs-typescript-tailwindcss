@@ -19,6 +19,7 @@ import Button from './Button';
 import InsertLink from '../Link/InsertLink';
 import { getFocusedEditor } from '../editorUtils';
 import { linkOption } from '../Link/LinkForm';
+import EmbedYoutube from './EmbedYoutube';
 
 interface IProps {
   editor: Editor | null;
@@ -69,6 +70,10 @@ const ToolBar: FC<IProps> = ({ editor }) => {
         href: url,
       });
     }
+  };
+
+  const handleEmbedYoutube = (url: string) => {
+    editor.chain().focus().setYoutubeVideo({ src: url }).run();
   };
 
   const Head = () => {
@@ -147,9 +152,7 @@ const ToolBar: FC<IProps> = ({ editor }) => {
       </div>
       <div className="h-4 w-[1px] bg-secondary-dark dark:bg-secondary-light mx-8"></div>
       <div className="flex items-center space-x-3">
-        <Button>
-          <BsYoutube />
-        </Button>
+        <EmbedYoutube onSubmit={handleEmbedYoutube} />
         <Button>
           <BsImageFill />
         </Button>

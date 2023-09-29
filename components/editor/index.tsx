@@ -6,6 +6,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import ToolBar from './ToolBar';
 import EditLink from './Link/EditLink';
+import Youtube from '@tiptap/extension-youtube';
 
 interface IProps {}
 
@@ -25,6 +26,13 @@ const Editor: FC<IProps> = () => {
         },
       }),
       Placeholder.configure({ placeholder: 'Type something' }),
+      Youtube.configure({
+        width: 840,
+        height: 472.5,
+        HTMLAttributes: {
+          class: 'mx-auto rounded',
+        },
+      }),
     ],
     editorProps: {
       handleClick(view, pos, event) {
