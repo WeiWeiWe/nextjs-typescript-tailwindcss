@@ -23,9 +23,10 @@ import EmbedYoutube from './EmbedYoutube';
 
 interface IProps {
   editor: Editor | null;
+  onOpenImageClick: () => void;
 }
 
-const ToolBar: FC<IProps> = ({ editor }) => {
+const ToolBar: FC<IProps> = ({ editor, onOpenImageClick }) => {
   if (!editor) return null;
 
   const options = [
@@ -153,7 +154,7 @@ const ToolBar: FC<IProps> = ({ editor }) => {
       <div className="h-4 w-[1px] bg-secondary-dark dark:bg-secondary-light mx-8"></div>
       <div className="flex items-center space-x-3">
         <EmbedYoutube onSubmit={handleEmbedYoutube} />
-        <Button>
+        <Button onClick={onOpenImageClick}>
           <BsImageFill />
         </Button>
       </div>

@@ -4,14 +4,16 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
+import Youtube from '@tiptap/extension-youtube';
 import ToolBar from './ToolBar';
 import EditLink from './Link/EditLink';
-import Youtube from '@tiptap/extension-youtube';
+import GalleryModel from '../editor/GalleryModel';
 
 interface IProps {}
 
 const Editor: FC<IProps> = () => {
   const [selectionRange, setSelectionRange] = useState<Range>();
+  const [showGallery, setShowGallery] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -57,12 +59,21 @@ const Editor: FC<IProps> = () => {
   }, [editor, selectionRange]);
 
   return (
-    <div className="p-3 dark:bg-primary-dark bg-primary transition">
-      <ToolBar editor={editor} />
-      <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
-      {editor ? <EditLink editor={editor} /> : null}
-      <EditorContent editor={editor} />
-    </div>
+    <>
+      <div className="p-3 dark:bg-primary-dark bg-primary transition">
+        <ToolBar
+          editor={editor}
+          onOpenImageClick={() => setShowGallery(true)}
+        />
+        <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
+        {editor ? <EditLink editor={editor} /> : null}
+        <EditorContent editor={editor} />
+      </div>
+      <GalleryModel
+        visible={showGallery}
+        onClose={() => setShowGallery(false)}
+      />
+    </>
   );
 };
 
