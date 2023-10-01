@@ -5,9 +5,10 @@ import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import Youtube from '@tiptap/extension-youtube';
+import TipTapImage from '@tiptap/extension-image';
 import ToolBar from './ToolBar';
 import EditLink from './Link/EditLink';
-import GalleryModel from '../editor/GalleryModel';
+import GalleryModel, { ImageSelectionResult } from '../editor/GalleryModel';
 
 interface IProps {}
 
@@ -35,6 +36,11 @@ const Editor: FC<IProps> = () => {
           class: 'mx-auto rounded',
         },
       }),
+      TipTapImage.configure({
+        HTMLAttributes: {
+          class: 'mx-auto',
+        },
+      }),
     ],
     editorProps: {
       handleClick(view, pos, event) {
@@ -51,6 +57,14 @@ const Editor: FC<IProps> = () => {
       },
     },
   });
+
+  const handleImageSelection = (result: ImageSelectionResult) => {
+    editor
+      ?.chain()
+      .focus()
+      .setImage({ src: result.src, alt: result.altText })
+      .run();
+  };
 
   useEffect(() => {
     if (editor && selectionRange) {
@@ -72,6 +86,8 @@ const Editor: FC<IProps> = () => {
       <GalleryModel
         visible={showGallery}
         onClose={() => setShowGallery(false)}
+        onFileSelect={(image) => {}}
+        onSelect={handleImageSelection}
       />
     </>
   );

@@ -24,6 +24,9 @@ module.exports = {
         width: 'width',
       },
     },
+    backgroundImage: {
+      'png-pattern': "url('/empty-bg.jpg')",
+    },
   },
   plugins: [require('@tailwindcss/typography')],
 };
