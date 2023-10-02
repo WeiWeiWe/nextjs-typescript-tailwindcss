@@ -13,14 +13,16 @@ export interface ImageSelectionResult {
 }
 
 interface IProps extends ModelContainerIProps {
+  images: { src: string }[];
+  uploading?: boolean;
   onFileSelect: (image: File) => void;
   onSelect: (result: ImageSelectionResult) => void;
 }
 
-const images: { src: string }[] = [];
-
 const GalleryModel: FC<IProps> = ({
   visible,
+  images,
+  uploading,
   onClose,
   onFileSelect,
   onSelect,
@@ -59,6 +61,7 @@ const GalleryModel: FC<IProps> = ({
             <Gallery
               images={images}
               selectedImage={selectedImage}
+              uploading={uploading}
               onSelect={(src) => setSelectedImage(src)}
             />
           </div>

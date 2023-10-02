@@ -1,4 +1,5 @@
 import { FC, useState, useEffect } from 'react';
+import axios from 'axios';
 import { useEditor, EditorContent, getMarkRange, Range } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -15,6 +16,22 @@ interface IProps {}
 const Editor: FC<IProps> = () => {
   const [selectionRange, setSelectionRange] = useState<Range>();
   const [showGallery, setShowGallery] = useState(false);
+  const [images, setImages] = useState<{ src: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  const fetchImages = async () => {
+    const { data } = await axios('/api/image');
+    setImages(data?.images || []);
+  };
+
+  const handleImageUpload = async (image: File) => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('image', image);
+    const { data } = await axios.post('/api/image', formData);
+    setUploading(false);
+    setImages([data, ...images]);
+  };
 
   const editor = useEditor({
     extensions: [
@@ -72,6 +89,10 @@ const Editor: FC<IProps> = () => {
     }
   }, [editor, selectionRange]);
 
+  useEffect(() => {
+    fetchImages();
+  }, []);
+
   return (
     <>
       <div className="p-3 dark:bg-primary-dark bg-primary transition">
@@ -85,8 +106,10 @@ const Editor: FC<IProps> = () => {
       </div>
       <GalleryModel
         visible={showGallery}
+        images={images}
+        uploading={uploading}
         onClose={() => setShowGallery(false)}
-        onFileSelect={(image) => {}}
+        onFileSelect={handleImageUpload}
         onSelect={handleImageSelection}
       />
     </>
