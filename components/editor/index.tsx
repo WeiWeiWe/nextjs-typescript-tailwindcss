@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, ChangeEventHandler, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useEditor, EditorContent, getMarkRange, Range } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -11,16 +11,40 @@ import ActionButton from '../common/ActionButton';
 import ToolBar from './ToolBar';
 import EditLink from './Link/EditLink';
 import GalleryModel, { ImageSelectionResult } from '../editor/GalleryModel';
-import SeoForm from './SeoForm';
+import SeoForm, { SeoResult } from './SeoForm';
 import ThumbnailSelector from './ThumbnailSelector';
 
-interface IProps {}
+export interface FinalPost extends SeoResult {
+  title: string;
+  content: string;
+  thumbnail?: File | string;
+}
 
-const Editor: FC<IProps> = () => {
+interface IProps {
+  initialValue?: FinalPost;
+  btnTitle?: string;
+  busy?: boolean;
+  onSubmit: (post: FinalPost) => void;
+}
+
+const Editor: FC<IProps> = ({
+  initialValue,
+  btnTitle = 'Submit',
+  busy = false,
+  onSubmit,
+}) => {
   const [selectionRange, setSelectionRange] = useState<Range>();
   const [showGallery, setShowGallery] = useState(false);
   const [images, setImages] = useState<{ src: string }[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [seoInitialValue, setSeoInitialValue] = useState<SeoResult>();
+  const [post, setPost] = useState<FinalPost>({
+    title: '',
+    content: '',
+    meta: '',
+    tags: '',
+    slug: '',
+  });
 
   const fetchImages = async () => {
     const { data } = await axios('/api/image');
@@ -86,11 +110,38 @@ const Editor: FC<IProps> = () => {
       .run();
   };
 
+  const handleSubmit = () => {
+    if (!editor) return;
+    onSubmit({ ...post, content: editor.getHTML() });
+  };
+
+  const updateTitle: ChangeEventHandler<HTMLInputElement> = ({ target }) => {
+    setPost({ ...post, title: target?.value || '' });
+  };
+
+  const updateSeoValue = (result: SeoResult) => {
+    setPost({ ...post, ...result });
+  };
+
+  const updateThumbnail = (file: File) => {
+    setPost({ ...post, thumbnail: file });
+  };
+
   useEffect(() => {
     if (editor && selectionRange) {
       editor.commands.setTextSelection(selectionRange);
     }
   }, [editor, selectionRange]);
+
+  useEffect(() => {
+    if (initialValue) {
+      setPost({ ...initialValue });
+      editor?.commands.setContent(initialValue.content);
+
+      const { meta, slug, tags } = initialValue;
+      setSeoInitialValue({ meta, slug, tags });
+    }
+  }, [initialValue, editor]);
 
   useEffect(() => {
     fetchImages();
@@ -102,9 +153,16 @@ const Editor: FC<IProps> = () => {
         <div className="sticky top-0 z-10 dark:bg-primary-dark bg-primary">
           {/* Thumbnail Selector and Submit Button */}
           <div className="flex items-center justify-between mb-3">
-            <ThumbnailSelector onChange={(file) => {}} />
+            <ThumbnailSelector
+              initialValue={(post?.thumbnail || '') as string}
+              onChange={updateThumbnail}
+            />
             <div className="inline-block">
-              <ActionButton title="Submit" />
+              <ActionButton
+                busy={busy}
+                title={btnTitle}
+                onClick={handleSubmit}
+              />
             </div>
           </div>
           {/* Title Input */}
@@ -112,6 +170,8 @@ const Editor: FC<IProps> = () => {
             type="text"
             className="py-2 outline-none bg-transparent w-full border-0 border-b-[1px] border-secondary-dark dark:border-secondary-light text-3xl font-semibold italic text-primary-dark dark:text-primary mb-3"
             placeholder="Title"
+            onChange={updateTitle}
+            value={post?.title || ''}
           />
           <ToolBar
             editor={editor}
@@ -122,7 +182,11 @@ const Editor: FC<IProps> = () => {
         {editor ? <EditLink editor={editor} /> : null}
         <EditorContent editor={editor} className="min-h-[300px]" />
         <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
-        <SeoForm onChange={(result) => {}} />
+        <SeoForm
+          onChange={updateSeoValue}
+          title={post?.title || ''}
+          initialValue={seoInitialValue}
+        />
       </div>
       <GalleryModel
         visible={showGallery}

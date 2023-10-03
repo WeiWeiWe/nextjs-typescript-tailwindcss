@@ -6,7 +6,7 @@ interface IProps {}
 const Create: NextPage<IProps> = () => {
   return (
     <div className="max-w-4xl mx-auto">
-      <Editor />
+      <Editor onSubmit={(post) => {}} />
     </div>
   );
 };

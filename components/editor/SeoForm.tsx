@@ -9,6 +9,7 @@ export interface SeoResult {
 }
 
 interface IProps {
+  initialValue?: SeoResult;
   title?: string;
   onChange: (result: SeoResult) => void;
 }
@@ -40,7 +41,7 @@ const Input: FC<{
   );
 };
 
-const SeoForm: FC<IProps> = ({ title = '', onChange }) => {
+const SeoForm: FC<IProps> = ({ initialValue, title = '', onChange }) => {
   const [values, setValues] = useState({ meta: '', slug: '', tags: '' });
 
   const { meta, slug, tags } = values;
@@ -60,6 +61,12 @@ const SeoForm: FC<IProps> = ({ title = '', onChange }) => {
     setValues(newValues);
     onChange && onChange(newValues);
   }, [title]);
+
+  useEffect(() => {
+    if (initialValue) {
+      setValues({ ...initialValue, slug: slugify(initialValue.slug) });
+    }
+  }, [initialValue]);
 
   return (
     <div className="space-y-4">
