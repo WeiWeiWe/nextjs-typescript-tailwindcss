@@ -7,10 +7,12 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import Youtube from '@tiptap/extension-youtube';
 import TipTapImage from '@tiptap/extension-image';
+import ActionButton from '../common/ActionButton';
 import ToolBar from './ToolBar';
 import EditLink from './Link/EditLink';
 import GalleryModel, { ImageSelectionResult } from '../editor/GalleryModel';
 import SeoForm from './SeoForm';
+import ThumbnailSelector from './ThumbnailSelector';
 
 interface IProps {}
 
@@ -97,16 +99,26 @@ const Editor: FC<IProps> = () => {
   return (
     <>
       <div className="p-3 dark:bg-primary-dark bg-primary transition">
-        <input
-          type="text"
-          className="py-2 outline-none bg-transparent w-full border-0 border-b-[1px] border-secondary-dark dark:border-secondary-light text-3xl font-semibold italic text-primary-dark dark:text-primary mb-3"
-          placeholder="Title"
-        />
-        <ToolBar
-          editor={editor}
-          onOpenImageClick={() => setShowGallery(true)}
-        />
-        <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
+        <div className="sticky top-0 z-10 dark:bg-primary-dark bg-primary">
+          {/* Thumbnail Selector and Submit Button */}
+          <div className="flex items-center justify-between mb-3">
+            <ThumbnailSelector onChange={(file) => {}} />
+            <div className="inline-block">
+              <ActionButton title="Submit" />
+            </div>
+          </div>
+          {/* Title Input */}
+          <input
+            type="text"
+            className="py-2 outline-none bg-transparent w-full border-0 border-b-[1px] border-secondary-dark dark:border-secondary-light text-3xl font-semibold italic text-primary-dark dark:text-primary mb-3"
+            placeholder="Title"
+          />
+          <ToolBar
+            editor={editor}
+            onOpenImageClick={() => setShowGallery(true)}
+          />
+          <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
+        </div>
         {editor ? <EditLink editor={editor} /> : null}
         <EditorContent editor={editor} className="min-h-[300px]" />
         <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
