@@ -10,6 +10,7 @@ import TipTapImage from '@tiptap/extension-image';
 import ToolBar from './ToolBar';
 import EditLink from './Link/EditLink';
 import GalleryModel, { ImageSelectionResult } from '../editor/GalleryModel';
+import SeoForm from './SeoForm';
 
 interface IProps {}
 
@@ -107,7 +108,9 @@ const Editor: FC<IProps> = () => {
         />
         <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
         {editor ? <EditLink editor={editor} /> : null}
-        <EditorContent editor={editor} />
+        <EditorContent editor={editor} className="min-h-[300px]" />
+        <div className="h-[1px] w-full bg-secondary-dark dark:bg-secondary-light my-3"></div>
+        <SeoForm onChange={(result) => {}} />
       </div>
       <GalleryModel
         visible={showGallery}
