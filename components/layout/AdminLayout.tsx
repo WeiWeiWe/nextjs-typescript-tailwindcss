@@ -9,9 +9,11 @@ import {
   AiOutlineFileAdd,
 } from 'react-icons/ai';
 import AdminNav from '../common/AdminNav';
+import AppHead from '../common/AppHead';
 
 interface IProps {
   children: ReactNode;
+  title?: string;
 }
 
 const navItems = [
@@ -22,17 +24,20 @@ const navItems = [
   { href: '/admin/contact', icon: AiOutlineContacts, label: 'Contact' },
 ];
 
-const AdminLayout: FC<IProps> = ({ children }) => {
+const AdminLayout: FC<IProps> = ({ title, children }) => {
   return (
-    <div className="flex">
-      <AdminNav {...{ navItems }} />
-      <div className="flex-1 p-4">{children}</div>
-      <Link href="/admin/post/create">
-        <a className="bg-secondary-dark dark:bg-secondary-light text-primary dark:text-primary-dark fixed z-10 right-10 bottom-10 p-3 rounded-full hover:scale-90 shadow-sm transition">
-          <AiOutlineFileAdd size={24} />
-        </a>
-      </Link>
-    </div>
+    <>
+      <AppHead title={title} />
+      <div className="flex">
+        <AdminNav {...{ navItems }} />
+        <div className="flex-1 p-4">{children}</div>
+        <Link href="/admin/post/create">
+          <a className="bg-secondary-dark dark:bg-secondary-light text-primary dark:text-primary-dark fixed z-10 right-10 bottom-10 p-3 rounded-full hover:scale-90 shadow-sm transition">
+            <AiOutlineFileAdd size={24} />
+          </a>
+        </Link>
+      </div>
+    </>
   );
 };
 
