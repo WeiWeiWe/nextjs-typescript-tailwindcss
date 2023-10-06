@@ -22,7 +22,7 @@ const handler: NextApiHandler = (req, res) => {
 const uploadNewImage: NextApiHandler = async (req, res) => {
   try {
     const { files } = await readFile(req);
-    const imageFile = files.image as formidable.File[];
+    const imageFile = files.image as formidable.File;
     console.log(imageFile);
 
     // todo: save image to cloud and get image src
