@@ -1,3 +1,6 @@
+import dbConnect from '@/lib/dbConnect';
+import Post, { PostModelSchema } from '@/models/Post';
+import { PostDetail } from '@/utils/types';
 import formidable from 'formidable';
 import { NextApiRequest } from 'next';
 
@@ -17,4 +20,27 @@ export const readFile = <T extends object>(
       resolve({ files, body: fields as T });
     });
   });
+};
+
+export const readPostsFromDb = async (limit: number, pageNo: number) => {
+  const skip = limit * pageNo;
+  await dbConnect();
+  const posts = await Post.find()
+    .sort({ createdAt: 'desc' })
+    .select('-content')
+    .skip(skip)
+    .limit(limit);
+
+  return posts;
+};
+
+export const formatPosts = (posts: PostModelSchema[]): PostDetail[] => {
+  return posts.map((post) => ({
+    title: post.title,
+    slug: post.slug,
+    createdAt: post.createdAt.toString(),
+    thumbnail: post.thumbnail?.url || '',
+    meta: post.meta,
+    tags: post.tags,
+  }));
 };
