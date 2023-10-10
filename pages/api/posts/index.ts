@@ -2,8 +2,9 @@ import { NextApiHandler } from 'next';
 import formidable from 'formidable';
 import dbConnect from '@/lib/dbConnect';
 import { validateSchema, postValidationSchema } from '@/lib/validator';
-import { readFile } from '@/lib/utils';
+import { formatPosts, readFile, readPostsFromDb } from '@/lib/utils';
 import Post from '@/models/Post';
+import { IncomingPost } from '@/utils/types';
 
 export const config = {
   api: { bodyParser: false },
@@ -13,17 +14,15 @@ const handler: NextApiHandler = async (req, res) => {
   const { method } = req;
 
   switch (method) {
-    case 'GET': {
-      await dbConnect();
-      res.json({ ok: true });
-    }
+    case 'GET':
+      return readPosts(req, res);
     case 'POST':
       return createNewPost(req, res);
   }
 };
 
 const createNewPost: NextApiHandler = async (req, res) => {
-  const { files, body } = await readFile(req);
+  const { files, body } = await readFile<IncomingPost>(req);
 
   // tags will be in string form, so need to converting to array type
   let tags = [];
@@ -61,6 +60,19 @@ const createNewPost: NextApiHandler = async (req, res) => {
   await newPost.save();
 
   res.json({ post: newPost });
+};
+
+const readPosts: NextApiHandler = async (req, res) => {
+  try {
+    const { limit, pageNo } = req.query;
+    const posts = await readPostsFromDb(
+      parseInt(limit as string),
+      parseInt(pageNo as string)
+    );
+    res.json({ posts: formatPosts(posts) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 export default handler;

@@ -3,6 +3,7 @@ import formidable from 'formidable';
 import { validateSchema, postValidationSchema } from '@/lib/validator';
 import { readFile } from '@/lib/utils';
 import Post from '@/models/Post';
+import { IncomingPost } from '@/utils/types';
 
 export const config = {
   api: { bodyParser: false },
@@ -18,14 +19,6 @@ const handler: NextApiHandler = (req, res) => {
       res.status(404).send('Not found!');
   }
 };
-
-interface IncomingPost {
-  title: string;
-  content: string;
-  slug: string;
-  meta: string;
-  tags: string;
-}
 
 const updatePost: NextApiHandler = async (req, res) => {
   const postId = (req.query?.postId || '') as string;
