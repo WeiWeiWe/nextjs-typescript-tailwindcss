@@ -7,6 +7,7 @@ import { PostDetail } from '@/utils/types';
 interface IProps {
   post: PostDetail;
   busy?: boolean;
+  controls?: boolean;
   onDeleteClick?: () => void;
 }
 
@@ -16,7 +17,12 @@ const trimText = (text: string, trimBy: number = 30) => {
   return text?.substring(0, trimBy).trim() + '...';
 };
 
-const PostCard: FC<IProps> = ({ post, busy, onDeleteClick }) => {
+const PostCard: FC<IProps> = ({
+  controls = false,
+  post,
+  busy,
+  onDeleteClick,
+}) => {
   const { title, slug, meta, tags, thumbnail, createdAt } = post;
   return (
     <div className="rounded shadow-sm shadow-secondary-dark overflow-hidden bg-primary dark:bg-primary-dark transition flex flex-col h-full">
@@ -53,20 +59,23 @@ const PostCard: FC<IProps> = ({ post, busy, onDeleteClick }) => {
             <p className="text-secondary-dark">{trimText(meta, 70)}</p>
           </a>
         </Link>
-        <div className="flex justify-end items-center h-8 mt-auto space-x-4 text-primary-dark dark:text-primary">
-          {busy ? (
-            <span className="animate-pulse">Removing</span>
-          ) : (
-            <>
-              <Link href={'/admin/posts/update' + slug}>
-                <a className="hover:underline">Edit</a>
-              </Link>
-              <button className="hover:underline" onClick={onDeleteClick}>
-                Delete
-              </button>
-            </>
-          )}
-        </div>
+
+        {controls && (
+          <div className="flex justify-end items-center h-8 mt-auto space-x-4 text-primary-dark dark:text-primary">
+            {busy ? (
+              <span className="animate-pulse">Removing</span>
+            ) : (
+              <>
+                <Link href={'/admin/posts/update' + slug}>
+                  <a className="hover:underline">Edit</a>
+                </Link>
+                <button className="hover:underline" onClick={onDeleteClick}>
+                  Delete
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
