@@ -2,7 +2,7 @@ import { FC, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { IconType } from 'react-icons';
 import { RiMenuFoldFill, RiMenuUnfoldFill } from 'react-icons/ri';
-import Logo from '../common/Logo';
+import Logo from '../Logo';
 
 interface IProps {
   navItems: { label: string; icon: IconType; href: string }[];
