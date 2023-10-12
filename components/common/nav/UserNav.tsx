@@ -4,10 +4,17 @@ import { HiLightBulb } from 'react-icons/hi';
 import { APP_NAME } from '../AppHead';
 import Logo from '../Logo';
 import { GitHubAuthButton } from '../../button';
+import ProfileHead from '../ProfileHead';
+import DropdownOptions, { dropDownOptions } from '../DropdownOptions';
 
 interface IProps {}
 
 const UserNav: FC<IProps> = () => {
+  const dropDownOptions: dropDownOptions = [
+    { label: 'Dashboard', onMouseDown: () => {} },
+    { label: 'Logout', onMouseDown: () => {} },
+  ];
+
   return (
     <div className="flex items-center justify-between bg-primary-dark p-3">
       {/* Logo */}
@@ -21,7 +28,12 @@ const UserNav: FC<IProps> = () => {
         <button className="dark:text-secondary-dark text-secondary-light">
           <HiLightBulb size={34} />
         </button>
-        <GitHubAuthButton lightOnly />
+        {/* <GitHubAuthButton lightOnly /> */}
+
+        <DropdownOptions
+          options={dropDownOptions}
+          head={<ProfileHead nameInitial="N" lightOnly />}
+        />
       </div>
     </div>
   );

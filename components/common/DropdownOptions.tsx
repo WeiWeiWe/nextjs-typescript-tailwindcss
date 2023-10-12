@@ -1,7 +1,9 @@
 import { FC, ReactNode, useState } from 'react';
 
+export type dropDownOptions = { label: string; onMouseDown: () => void }[];
+
 interface IProps {
-  options: { label: string; onMouseDown: () => void }[];
+  options: dropDownOptions;
   head: ReactNode;
 }
 
