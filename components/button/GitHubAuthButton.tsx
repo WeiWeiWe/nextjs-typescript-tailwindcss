@@ -4,7 +4,7 @@ import { AiFillGithub } from 'react-icons/ai';
 
 interface IProps {
   lightOnly?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 const commonClasses =

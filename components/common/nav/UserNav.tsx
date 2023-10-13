@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import React, { FC } from 'react';
 import { HiLightBulb } from 'react-icons/hi';
 import { APP_NAME } from '../AppHead';
@@ -10,9 +11,21 @@ import DropdownOptions, { dropDownOptions } from '../DropdownOptions';
 interface IProps {}
 
 const UserNav: FC<IProps> = () => {
+  const { data, status } = useSession();
+  const isAuth = status === 'authenticated';
+
+  const handleLoginWithGithub = async () => {
+    await signIn('github');
+  };
+
   const dropDownOptions: dropDownOptions = [
     { label: 'Dashboard', onMouseDown: () => {} },
-    { label: 'Logout', onMouseDown: () => {} },
+    {
+      label: 'Logout',
+      onMouseDown: async () => {
+        await signOut();
+      },
+    },
   ];
 
   return (
@@ -30,10 +43,14 @@ const UserNav: FC<IProps> = () => {
         </button>
         {/* <GitHubAuthButton lightOnly /> */}
 
-        <DropdownOptions
-          options={dropDownOptions}
-          head={<ProfileHead nameInitial="N" lightOnly />}
-        />
+        {isAuth ? (
+          <DropdownOptions
+            options={dropDownOptions}
+            head={<ProfileHead nameInitial="N" lightOnly />}
+          />
+        ) : (
+          <GitHubAuthButton lightOnly onClick={handleLoginWithGithub} />
+        )}
       </div>
     </div>
   );
