@@ -29,7 +29,7 @@ const authOptions: NextAuthOptions = {
           userProfile.role = oldUser.role;
         }
 
-        return { id: profile?.id };
+        return { id: profile?.id, ...userProfile };
       },
     }),
   ],
@@ -37,6 +37,20 @@ const authOptions: NextAuthOptions = {
     jwt({ token, user }) {
       if (user) token.role = (user as any)?.role;
       return token;
+    },
+    async session({ session }) {
+      await dbConnect();
+      const user = await User.findOne({ email: session?.user?.email });
+      if (user) {
+        session.user = {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          avatar: user.avatar,
+          role: user.role,
+        } as any;
+      }
+      return session;
     },
   },
   pages: {
