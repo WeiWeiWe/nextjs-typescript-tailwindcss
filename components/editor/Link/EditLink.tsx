@@ -52,6 +52,7 @@ const EditLink: FC<IProps> = ({ editor }) => {
         onHide: () => {
           setShowEditForm(false);
         },
+        appendTo: 'parent',
       }}
     >
       <LinkForm

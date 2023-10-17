@@ -1,5 +1,7 @@
 import { FC, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Tippy from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css';
 import { IconType } from 'react-icons';
 import { RiMenuFoldFill, RiMenuUnfoldFill } from 'react-icons/ri';
 import Logo from '../Logo';
@@ -82,16 +84,20 @@ const AdminNav: FC<IProps> = ({ navItems }) => {
             navItems?.length > 0 &&
             navItems.map((item) => {
               return (
-                <Link key={item?.href} href={item?.href || '/admin'}>
-                  <a className="flex items-center text-highlight-light dark:text-highlight-dark text-xl p-3 hover:scale-[0.98] transition">
-                    {item?.icon && <item.icon size={24} />}
-                    {visible && (
-                      <span className="ml-2 leading-none">
-                        {item?.label || ''}
-                      </span>
-                    )}
-                  </a>
-                </Link>
+                <Tippy key={item?.href} content={item?.label}>
+                  <div>
+                    <Link key={item?.href} href={item?.href || '/admin'}>
+                      <a className="flex items-center text-highlight-light dark:text-highlight-dark text-xl p-3 hover:scale-[0.98] transition">
+                        {item?.icon && <item.icon size={24} />}
+                        {visible && (
+                          <span className="ml-2 leading-none">
+                            {item?.label || ''}
+                          </span>
+                        )}
+                      </a>
+                    </Link>
+                  </div>
+                </Tippy>
               );
             })}
         </div>
