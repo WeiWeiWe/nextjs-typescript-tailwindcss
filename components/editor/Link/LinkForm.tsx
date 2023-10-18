@@ -54,7 +54,12 @@ const LinkForm: FC<IProps> = ({ visible, onSubmit, initialState }) => {
             setLink({ ...link, openInNewTab: target.checked })
           }
         />
-        <label htmlFor="open-in-new-tab">open in new tab</label>
+        <label
+          className="text-secondary-dark dark:text-secondary-light"
+          htmlFor="open-in-new-tab"
+        >
+          open in new tab
+        </label>
         <div className="flex-1 text-right">
           <button
             onClick={handleSubmit}
