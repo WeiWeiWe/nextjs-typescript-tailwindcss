@@ -9,6 +9,7 @@ import { GitHubAuthButton } from '../../button';
 import ProfileHead from '../ProfileHead';
 import DropdownOptions, { dropDownOptions } from '../DropdownOptions';
 import { UserProfile } from '@/utils/types';
+import useDarkMode from '@/hooks/useDarkMode';
 
 interface IProps {}
 
@@ -27,6 +28,8 @@ const UserNav: FC<IProps> = () => {
   const isAuth = status === 'authenticated';
   const profile = data?.user as UserProfile | undefined;
   const isAdmin = profile?.role === 'admin';
+
+  const { toggleTheme } = useDarkMode();
 
   const handleLoginWithGithub = async () => {
     await signIn('github');
@@ -54,7 +57,10 @@ const UserNav: FC<IProps> = () => {
         </a>
       </Link>
       <div className="flex items-center space-x-5">
-        <button className="dark:text-secondary-dark text-secondary-light">
+        <button
+          className="dark:text-secondary-dark text-secondary-light"
+          onClick={toggleTheme}
+        >
           <HiLightBulb size={34} />
         </button>
         {/* <GitHubAuthButton lightOnly /> */}
