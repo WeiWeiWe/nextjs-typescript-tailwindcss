@@ -10,6 +10,7 @@ import DefaultLayout from '@/components/layout/DefaultLayout';
 import InfiniteScrollPosts from '@/components/common/InfiniteScrollPosts';
 import { formatPosts, readPostsFromDb } from '@/lib/utils';
 import { PostDetail, UserProfile } from '@/utils/types';
+import { filterPosts } from '@/utils/helper';
 
 type IProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
@@ -50,6 +51,7 @@ const Home: NextPage<IProps> = ({ posts }) => {
           posts={postsToRender}
           pageLimit={limit}
           showControls={isAdmin}
+          onPostRemoved={(post) => setPostsToRender(filterPosts(posts, post))}
         />
       </div>
     </DefaultLayout>

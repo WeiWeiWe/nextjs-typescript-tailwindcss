@@ -4,11 +4,12 @@ import {
   InferGetServerSidePropsType,
 } from 'next';
 import { useState } from 'react';
-import AdminLayout from '@/components/layout/AdminLayout';
-import { PostDetail } from '@/utils/types';
-import { formatPosts, readPostsFromDb } from '@/lib/utils';
-import InfiniteScrollPosts from '@/components/common/InfiniteScrollPosts';
 import axios from 'axios';
+import AdminLayout from '@/components/layout/AdminLayout';
+import InfiniteScrollPosts from '@/components/common/InfiniteScrollPosts';
+import { formatPosts, readPostsFromDb } from '@/lib/utils';
+import { PostDetail } from '@/utils/types';
+import { filterPosts } from '@/utils/helper';
 
 type IProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
@@ -48,6 +49,7 @@ const Posts: NextPage<IProps> = ({ posts }) => {
           posts={postsToRender}
           pageLimit={limit}
           showControls
+          onPostRemoved={(post) => setPostsToRender(filterPosts(posts, post))}
         />
       </div>
     </AdminLayout>
