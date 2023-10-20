@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
 import formidable from 'formidable';
-import { readFile } from '@/lib/utils';
+import { readFile, isAdmin } from '@/lib/utils';
 
 export const config = {
   api: { bodyParser: false },
@@ -21,6 +21,9 @@ const handler: NextApiHandler = (req, res) => {
 
 const uploadNewImage: NextApiHandler = async (req, res) => {
   try {
+    const admin = await isAdmin(req, res);
+    if (!admin) return res.status(401).json({ error: 'unauthorized request!' });
+
     const { files } = await readFile(req);
     const imageFile = files.image as formidable.File;
     console.log(imageFile);
@@ -35,6 +38,9 @@ const uploadNewImage: NextApiHandler = async (req, res) => {
 
 const readAllImages: NextApiHandler = async (req, res) => {
   try {
+    const admin = await isAdmin(req, res);
+    if (!admin) return res.status(401).json({ error: 'unauthorized request!' });
+
     // todo: get images from cloud
     res.json({ images: [] });
   } catch (err) {
