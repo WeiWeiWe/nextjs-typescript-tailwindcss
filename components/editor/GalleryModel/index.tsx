@@ -95,6 +95,7 @@ const GalleryModel: FC<IProps> = ({
                   <div className="relative aspect-video bg-png-pattern">
                     <Image
                       src={selectedImage}
+                      alt="selected"
                       layout="fill"
                       objectFit="contain"
                     />

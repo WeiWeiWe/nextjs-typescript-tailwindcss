@@ -74,8 +74,8 @@ const readPosts: NextApiHandler = async (req, res) => {
       parseInt(skip as string)
     );
     res.json({ posts: formatPosts(posts) });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message });
   }
 };
 

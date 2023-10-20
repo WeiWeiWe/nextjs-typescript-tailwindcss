@@ -38,7 +38,7 @@ const removePost: NextApiHandler = async (req, res) => {
     // }
 
     res.json({ removed: true });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ error: error?.message });
   }
 };

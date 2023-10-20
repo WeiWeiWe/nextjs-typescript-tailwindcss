@@ -12,8 +12,8 @@ const Create: NextPage<IProps> = () => {
       const formData = generateFormData(post);
       const { data } = await axios.post('/api/posts', formData);
       console.log(data);
-    } catch (err) {
-      console.error(err?.response?.data);
+    } catch (error: any) {
+      console.error(error?.response?.data);
     }
   };
 

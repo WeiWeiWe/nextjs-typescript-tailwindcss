@@ -56,7 +56,9 @@ const SeoForm: FC<IProps> = ({ initialValue, title = '', onChange }) => {
   };
 
   useEffect(() => {
-    const slug = slugify(title.toLowerCase());
+    const slug = slugify(title.toLowerCase(), {
+      strict: true,
+    });
     const newValues = { ...values, slug };
     setValues(newValues);
     onChange && onChange(newValues);
@@ -64,7 +66,10 @@ const SeoForm: FC<IProps> = ({ initialValue, title = '', onChange }) => {
 
   useEffect(() => {
     if (initialValue) {
-      setValues({ ...initialValue, slug: slugify(initialValue.slug) });
+      setValues({
+        ...initialValue,
+        slug: slugify(initialValue.slug, { strict: true }),
+      });
     }
   }, [initialValue]);
 

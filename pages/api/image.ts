@@ -31,8 +31,8 @@ const uploadNewImage: NextApiHandler = async (req, res) => {
     // todo: save image to cloud and get image src
 
     res.json({ src: '' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message });
   }
 };
 
@@ -43,8 +43,8 @@ const readAllImages: NextApiHandler = async (req, res) => {
 
     // todo: get images from cloud
     res.json({ images: [] });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error: any) {
+    res.status(500).json({ error: error?.message });
   }
 };
 

@@ -22,8 +22,8 @@ const Update: NextPage<IProps> = ({ post }) => {
       const formData = generateFormData(post);
       const { data } = await axios.patch(`/api/posts/${post?.id}`, formData);
       console.log(data);
-    } catch (err) {
-      console.error(err?.response?.data);
+    } catch (error: any) {
+      console.error(error?.response?.data);
     }
   };
 
