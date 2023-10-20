@@ -16,7 +16,7 @@ type IProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 const Home: NextPage<IProps> = ({ posts }) => {
   const [postsToRender, setPostsToRender] = useState(posts);
-  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [hasMorePosts, setHasMorePosts] = useState(posts?.length >= limit);
 
   const { data } = useSession();
   const profile = data?.user as UserProfile;
@@ -26,7 +26,7 @@ const Home: NextPage<IProps> = ({ posts }) => {
     try {
       pageNo++;
       const { data } = await axios(
-        `/api/posts?limit=${limit}&pageNo=${pageNo}`
+        `/api/posts?limit=${limit}&skip=${postsToRender?.length}`
       );
 
       if (data?.posts?.length < limit) {
@@ -49,7 +49,6 @@ const Home: NextPage<IProps> = ({ posts }) => {
           next={fetchMorePosts}
           dataLength={postsToRender.length}
           posts={postsToRender}
-          pageLimit={limit}
           showControls={isAdmin}
           onPostRemoved={(post) => setPostsToRender(filterPosts(posts, post))}
         />

@@ -12,7 +12,6 @@ interface IProps {
   next: () => void;
   dataLength: number;
   loader?: ReactNode;
-  pageLimit?: number;
   onPostRemoved: (post: PostDetail) => void;
 }
 
@@ -23,7 +22,6 @@ const InfiniteScrollPosts: FC<IProps> = ({
   next,
   dataLength,
   loader,
-  pageLimit = 9,
   onPostRemoved,
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -54,7 +52,7 @@ const InfiniteScrollPosts: FC<IProps> = ({
 
   const defaultLoader = (
     <p className="p-3 text-secondary-dark opacity-50 text-center font-semibold text-xl animate-pulse">
-      {posts?.length < pageLimit ? '' : 'Loading...'}
+      Loading...
     </p>
   );
 
@@ -76,7 +74,7 @@ const InfiniteScrollPosts: FC<IProps> = ({
                   post={post}
                   controls={showControls}
                   onDeleteClick={() => handleOnDeleteClick(post)}
-                  busy={removing}
+                  busy={post?.id === postToRemove?.id && removing}
                 />
               ))}
           </div>

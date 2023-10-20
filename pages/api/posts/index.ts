@@ -64,10 +64,11 @@ const createNewPost: NextApiHandler = async (req, res) => {
 
 const readPosts: NextApiHandler = async (req, res) => {
   try {
-    const { limit, pageNo } = req.query;
+    const { limit, pageNo, skip } = req.query;
     const posts = await readPostsFromDb(
       parseInt(limit as string),
-      parseInt(pageNo as string)
+      parseInt(pageNo as string),
+      parseInt(skip as string)
     );
     res.json({ posts: formatPosts(posts) });
   } catch (error) {
