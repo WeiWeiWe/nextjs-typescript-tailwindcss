@@ -63,6 +63,7 @@ export const getServerSideProps: GetServerSideProps<ServerSideResponse> =
             slug,
           },
         },
+        revalidate: 60,
       };
     } catch (error) {
       return { notFound: true };
