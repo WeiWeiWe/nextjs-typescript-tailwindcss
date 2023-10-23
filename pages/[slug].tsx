@@ -8,13 +8,17 @@ import Image from 'next/image';
 import moment from 'moment';
 import parse from 'html-react-parser';
 import DefaultLayout from '@/components/layout/DefaultLayout';
+import CommentForm from '@/components/common/CommentForm';
+import { GitHubAuthButton } from '@/components/button';
 import dbConnect from '@/lib/dbConnect';
 import Post from '@/models/Post';
+import useAuth from '@/hooks/useAuth';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SinglePost: NextPage<Props> = ({ post }) => {
   const { title, content, tags, meta, thumbnail, createdAt } = post;
+  const userProfile = useAuth();
 
   return (
     <DefaultLayout title={title} desc={meta}>
@@ -39,6 +43,18 @@ const SinglePost: NextPage<Props> = ({ post }) => {
         </div>
         <div className="prose prose-lg dark:prose-invert max-w-full mx-auto">
           {parse(content)}
+        </div>
+        <div className="py-20">
+          {userProfile ? (
+            <CommentForm />
+          ) : (
+            <div className="flex flex-col items-end space-y-2">
+              <h3 className="text-secondary-dark text-xl font-semibold">
+                Login to add comment
+              </h3>
+              <GitHubAuthButton />
+            </div>
+          )}
         </div>
       </div>
     </DefaultLayout>

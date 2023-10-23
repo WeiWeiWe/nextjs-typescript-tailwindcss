@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import React, { FC } from 'react';
 import { HiLightBulb } from 'react-icons/hi';
 import { APP_NAME } from '../AppHead';
@@ -31,10 +31,6 @@ const UserNav: FC<IProps> = () => {
 
   const { toggleTheme } = useDarkMode();
 
-  const handleLoginWithGithub = async () => {
-    await signIn('github');
-  };
-
   const dropDownOptions: dropDownOptions = isAdmin
     ? [
         {
@@ -63,15 +59,13 @@ const UserNav: FC<IProps> = () => {
         >
           <HiLightBulb size={34} />
         </button>
-        {/* <GitHubAuthButton lightOnly /> */}
-
         {isAuth ? (
           <DropdownOptions
             options={dropDownOptions}
             head={<ProfileHead nameInitial="N" lightOnly />}
           />
         ) : (
-          <GitHubAuthButton lightOnly onClick={handleLoginWithGithub} />
+          <GitHubAuthButton lightOnly />
         )}
       </div>
     </div>
