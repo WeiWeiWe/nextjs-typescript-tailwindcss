@@ -4,7 +4,8 @@ import formidable from 'formidable';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import dbConnect from '@/lib/dbConnect';
 import Post, { PostModelSchema } from '@/models/Post';
-import { PostDetail, UserProfile } from '@/utils/types';
+import { IComment } from '@/models/Comment';
+import { CommentResponse, PostDetail, UserProfile } from '@/utils/types';
 
 interface FormidablePromise<T> {
   files: formidable.Files;
@@ -64,4 +65,26 @@ export const isAuth = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, authOptions);
   const user = session?.user;
   if (user) return user as UserProfile;
+};
+
+const getLikedByOwner = (likes: any[], user: UserProfile) => {
+  return likes?.includes(user?.id);
+};
+
+export const formatComment = (
+  comment: IComment,
+  user?: UserProfile
+): CommentResponse => {
+  return {
+    id: comment?._id?.toString(),
+    content: comment?.content || '',
+    likes: comment?.likes?.length,
+    chiefComment: comment?.chiefComment || false,
+    createdAt: comment?.createdAt?.toString() as string,
+    owner: user
+      ? { id: user?.id, name: user?.name, avatar: user?.avatar }
+      : null,
+    repliedTo: comment?.repliedTo?.toString(),
+    likedByOwner: user ? getLikedByOwner(comment?.likes, user) : false,
+  };
 };
