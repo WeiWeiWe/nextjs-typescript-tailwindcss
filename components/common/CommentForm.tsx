@@ -5,10 +5,22 @@ import ActionButton from './ActionButton';
 
 interface IProps {
   title?: string;
+  busy?: boolean;
+  onSubmit: (content: string) => void;
 }
 
-const CommentForm: FC<IProps> = ({ title }) => {
+const CommentForm: FC<IProps> = ({ title, busy = false, onSubmit }) => {
   const { editor } = useEditorConfig({ placeholder: 'Add your comment...' });
+
+  const handleSubmit = () => {
+    if (editor && !busy) {
+      const value = editor?.getHTML();
+
+      if (value === '<p></p>') return;
+
+      onSubmit(value);
+    }
+  };
 
   return (
     <div>
@@ -23,7 +35,7 @@ const CommentForm: FC<IProps> = ({ title }) => {
       />
       <div className="flex justify-end py-3">
         <div className="inline-block">
-          <ActionButton title="Submit" />
+          <ActionButton busy={busy} title="Submit" onClick={handleSubmit} />
         </div>
       </div>
     </div>
