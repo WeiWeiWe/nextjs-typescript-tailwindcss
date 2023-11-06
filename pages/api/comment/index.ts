@@ -5,6 +5,7 @@ import { validateSchema, commentValidationSchema } from '@/lib/validator';
 import dbConnect from '@/lib/dbConnect';
 import Post from '@/models/Post';
 import Comment from '@/models/Comment';
+import { CommentResponse } from '@/utils/types';
 
 const handler: NextApiHandler = (req, res) => {
   const { method } = req;
@@ -30,7 +31,7 @@ const readComments: NextApiHandler = async (req, res) => {
   if (!belongsTo || !isValidObjectId(belongsTo))
     return res.status(422).json({ error: 'Invalid request!' });
 
-  const comment = await Comment.findOne({ belongsTo })
+  const comments = await Comment.find({ belongsTo })
     .populate({
       path: 'owner',
       select: 'name avatar',
@@ -44,13 +45,15 @@ const readComments: NextApiHandler = async (req, res) => {
     })
     .select('createdAt likes content repliedTo');
 
-  if (!comment) return res.json({ comment });
+  if (!comments) return res.json({ comments });
 
-  const formattedComment = {
-    ...formatComment(comment, user),
-    replies: comment?.replies?.map((c: any) => formatComment(c, user)),
-  };
-  res.json({ comment: formattedComment });
+  const formattedComment: CommentResponse[] = comments?.map((comment) => {
+    return {
+      ...formatComment(comment, user),
+      replies: comment?.replies?.map((c: any) => formatComment(c, user)),
+    };
+  });
+  res.json({ comments: formattedComment });
 };
 
 const createNewComment: NextApiHandler = async (req, res) => {
@@ -76,7 +79,10 @@ const createNewComment: NextApiHandler = async (req, res) => {
   });
 
   await comment.save();
-  res.status(201).json(comment);
+
+  const commentWithOwner = await comment.populate('owner');
+
+  res.status(201).json({ comment: formatComment(commentWithOwner, user) });
 };
 
 const removeComment: NextApiHandler = async (req, res) => {

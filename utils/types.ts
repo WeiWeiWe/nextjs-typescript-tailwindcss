@@ -34,5 +34,5 @@ export interface CommentResponse {
   replies?: ReplyComments;
   repliedTo?: string;
   chiefComment: boolean;
-  owner: { name: string; id: string; avatar?: string } | null;
+  owner: { name: string; id: string; avatar?: string };
 }
