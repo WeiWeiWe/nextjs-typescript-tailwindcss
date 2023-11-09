@@ -8,20 +8,23 @@ import {
 } from 'react-icons/bs';
 import ProfileIcon from './ProfileIcon';
 import CommentForm from './CommentForm';
-
-interface CommentOwnersProfile {
-  name: string;
-  avatar?: string;
-}
+import { CommentResponse } from '@/utils/types';
 
 interface IProps {
-  profile: CommentOwnersProfile;
-  date: string;
-  content: string;
+  comment: CommentResponse;
+  showControls?: boolean;
+  onUpdateSubmit?: (content: string) => void;
+  onReplySubmit?: (content: string) => void;
 }
 
-const CommentCard: FC<IProps> = ({ profile, date, content }) => {
-  const { name, avatar } = profile;
+const CommentCard: FC<IProps> = ({
+  comment,
+  showControls = false,
+  onUpdateSubmit,
+  onReplySubmit,
+}) => {
+  const { owner, createdAt, content } = comment;
+  const { name, avatar } = owner;
   const [showForm, setShowForm] = useState(false);
   const [initialState, setInitialState] = useState('');
 
@@ -43,7 +46,14 @@ const CommentCard: FC<IProps> = ({ profile, date, content }) => {
     setInitialState(content);
   };
 
-  const handleCommentSubmit = () => {};
+  const handleCommentSubmit = (comment: string) => {
+    if (initialState) {
+      onUpdateSubmit && onUpdateSubmit(comment);
+    } else {
+      onReplySubmit && onReplySubmit(comment);
+    }
+    hideReplyForm();
+  };
 
   return (
     <div className="flex space-x-3">
@@ -53,7 +63,7 @@ const CommentCard: FC<IProps> = ({ profile, date, content }) => {
           {name}
         </h1>
         <span className="text-sm text-secondary-dark">
-          {moment(date).format('YYYY-MM-DD')}
+          {moment(createdAt).format('YYYY-MM-DD')}
         </span>
         <div className="text-primary-dark dark:text-primary">
           {parse(content)}
@@ -63,14 +73,18 @@ const CommentCard: FC<IProps> = ({ profile, date, content }) => {
             <BsFillReplyAllFill />
             <span>Reply</span>
           </Button>
-          <Button onClick={handleOnEditClick}>
-            <BsPencilSquare />
-            <span>Edit</span>
-          </Button>
-          <Button>
-            <BsFillTrashFill />
-            <span>Delete</span>
-          </Button>
+          {showControls && (
+            <>
+              <Button onClick={handleOnEditClick}>
+                <BsPencilSquare />
+                <span>Edit</span>
+              </Button>
+              <Button>
+                <BsFillTrashFill />
+                <span>Delete</span>
+              </Button>
+            </>
+          )}
         </div>
         {showForm && (
           <div className="mt-3">

@@ -28,6 +28,83 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
     }
   };
 
+  const insertNewReplyComment = (reply: CommentResponse) => {
+    if (!Array.isArray(comments)) return;
+
+    const updatedComments = [...comments];
+
+    const chiefCommentIndex = updatedComments.findIndex(
+      ({ id }) => id === reply?.repliedTo
+    );
+
+    const { replies } = updatedComments[chiefCommentIndex];
+    if (replies) {
+      updatedComments[chiefCommentIndex].replies = [...replies, reply];
+    } else {
+      updatedComments[chiefCommentIndex].replies = [reply];
+    }
+
+    setComments([...updatedComments]);
+  };
+
+  const handleReplySubmit = async (replyComment: {
+    content: string;
+    repliedTo: string;
+  }) => {
+    try {
+      const newReplyComment = await axios
+        .post('/api/comment/add-reply', replyComment)
+        .then(({ data }) => data?.comment || {});
+
+      insertNewReplyComment(newReplyComment);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const updateEditedComment = (newComment: CommentResponse) => {
+    if (!Array.isArray(comments)) return;
+
+    let updatedComments = [...comments];
+
+    if (newComment?.chiefComment) {
+      const index = updatedComments.findIndex(({ id }) => id === newComment.id);
+      if (updatedComments[index]) {
+        updatedComments[index].content = newComment.content;
+      }
+    } else {
+      const chiefCommentIndex = updatedComments.findIndex(
+        ({ id }) => id === newComment?.repliedTo
+      );
+
+      if (updatedComments[chiefCommentIndex]?.replies) {
+        let newReplies = updatedComments[chiefCommentIndex].replies;
+        newReplies = newReplies?.map((comment) => {
+          if (comment?.id === newComment?.id) {
+            comment.content = newComment.content;
+          }
+          return comment;
+        });
+
+        updatedComments[chiefCommentIndex].replies = newReplies;
+      }
+    }
+
+    setComments([...updatedComments]);
+  };
+
+  const handleUpdateSubmit = async (content: string, id: string) => {
+    try {
+      const newUpdateComment = await axios
+        .patch(`/api/comment?commentId=${id}`, { content })
+        .then(({ data }) => data?.comment || {});
+
+      updateEditedComment(newUpdateComment);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     axios(`/api/comment?belongsTo=${belongsTo}`)
       .then(({ data }) => {
@@ -48,10 +125,41 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
           <GitHubAuthButton />
         </div>
       )}
-      {comments?.map(({ id, owner, createdAt, content }) => {
+      {comments?.map((comment) => {
+        const { replies } = comment;
+
         return (
-          <div key={id}>
-            <CommentCard profile={owner} date={createdAt} content={content} />
+          <div key={comment?.id}>
+            <CommentCard
+              comment={comment}
+              showControls={userProfile?.id === comment?.owner?.id}
+              onReplySubmit={(content) => {
+                handleReplySubmit({ content, repliedTo: comment?.id });
+              }}
+              onUpdateSubmit={(content) => {
+                handleUpdateSubmit(content, comment?.id);
+              }}
+            />
+            {replies?.length ? (
+              <div className="w-[93%] ml-auto space-y-3">
+                <h1 className="text-secondary-dark mb-3">Replies</h1>
+                {replies?.map((reply) => {
+                  return (
+                    <CommentCard
+                      key={reply?.id}
+                      comment={reply}
+                      showControls={userProfile?.id === reply?.owner?.id}
+                      onReplySubmit={(content) => {
+                        handleReplySubmit({ content, repliedTo: comment?.id });
+                      }}
+                      onUpdateSubmit={(content) => {
+                        handleUpdateSubmit(content, reply?.id);
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         );
       })}
