@@ -24,7 +24,7 @@ const ConfirmModal: FC<IProps> = ({
 }) => {
   return (
     <ModelContainer visible={visible} onClose={onClose}>
-      <div className="bg-primary-dark dark:bg-primary rounded p-3">
+      <div className="bg-primary-dark dark:bg-primary rounded p-3 max-w-[380px]">
         {/* title */}
         <p className="text-primary dark:text-primary-dark font-semibold text-lg">
           {title || ''}

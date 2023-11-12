@@ -15,6 +15,7 @@ interface IProps {
   showControls?: boolean;
   onUpdateSubmit?: (content: string) => void;
   onReplySubmit?: (content: string) => void;
+  onDeleteClick?: () => void;
 }
 
 const CommentCard: FC<IProps> = ({
@@ -22,6 +23,7 @@ const CommentCard: FC<IProps> = ({
   showControls = false,
   onUpdateSubmit,
   onReplySubmit,
+  onDeleteClick,
 }) => {
   const { owner, createdAt, content } = comment;
   const { name, avatar } = owner;
@@ -79,7 +81,7 @@ const CommentCard: FC<IProps> = ({
                 <BsPencilSquare />
                 <span>Edit</span>
               </Button>
-              <Button>
+              <Button onClick={onDeleteClick}>
                 <BsFillTrashFill />
                 <span>Delete</span>
               </Button>

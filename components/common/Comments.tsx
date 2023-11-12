@@ -5,6 +5,7 @@ import CommentCard from './CommentCard';
 import { GitHubAuthButton } from '../button';
 import useAuth from '@/hooks/useAuth';
 import { CommentResponse } from '@/utils/types';
+import ConfirmModal from './ConfirmModal';
 
 interface IProps {
   belongsTo: string;
@@ -12,6 +13,10 @@ interface IProps {
 
 const Comments: FC<IProps> = ({ belongsTo }) => {
   const [comments, setComments] = useState<CommentResponse[]>([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [commentToDelete, setCommentToDelete] =
+    useState<CommentResponse | null>(null);
+
   const userProfile = useAuth();
 
   const handleNewCommentSubmit = async (content: string) => {
@@ -93,6 +98,29 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
     setComments([...updatedComments]);
   };
 
+  const updateDeletedComment = (deletedComment: CommentResponse) => {
+    if (!Array.isArray(comments)) return;
+
+    let newComments = [...comments];
+
+    if (deletedComment?.chiefComment) {
+      newComments = newComments.filter(({ id }) => id !== deletedComment.id);
+    } else {
+      const chiefCommentIndex = newComments.findIndex(
+        ({ id }) => id === deletedComment?.repliedTo
+      );
+
+      if (newComments[chiefCommentIndex]?.replies) {
+        const newReplies = newComments[chiefCommentIndex].replies?.filter(
+          ({ id }) => id !== deletedComment?.id
+        );
+        newComments[chiefCommentIndex].replies = newReplies;
+      }
+    }
+
+    setComments([...newComments]);
+  };
+
   const handleUpdateSubmit = async (content: string, id: string) => {
     try {
       const newUpdateComment = await axios
@@ -102,6 +130,35 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
       updateEditedComment(newUpdateComment);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleOnDeleteClick = (comment: CommentResponse) => {
+    setCommentToDelete(comment);
+    setShowConfirmModal(true);
+  };
+
+  const handleOnDeleteCancel = () => {
+    setCommentToDelete(null);
+    setShowConfirmModal(false);
+  };
+
+  const handleOnDeleteConfirm = async () => {
+    if (!commentToDelete?.id) return;
+
+    try {
+      const isDeleteSuccess = await axios
+        .delete(`/api/comment?commentId=${commentToDelete.id}`)
+        .then(({ data }) => Boolean(data?.removed));
+
+      if (isDeleteSuccess) {
+        updateDeletedComment(commentToDelete);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCommentToDelete(null);
+      setShowConfirmModal(false);
     }
   };
 
@@ -139,6 +196,7 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
               onUpdateSubmit={(content) => {
                 handleUpdateSubmit(content, comment?.id);
               }}
+              onDeleteClick={() => handleOnDeleteClick(comment)}
             />
             {replies?.length ? (
               <div className="w-[93%] ml-auto space-y-3">
@@ -155,6 +213,7 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
                       onUpdateSubmit={(content) => {
                         handleUpdateSubmit(content, reply?.id);
                       }}
+                      onDeleteClick={() => handleOnDeleteClick(reply)}
                     />
                   );
                 })}
@@ -163,6 +222,13 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
           </div>
         );
       })}
+      <ConfirmModal
+        visible={showConfirmModal}
+        title="Are you sure?"
+        subTitle="This action will remove this comment and replies if this is chief comment!"
+        onCancel={handleOnDeleteCancel}
+        onConfirm={handleOnDeleteConfirm}
+      />
     </div>
   );
 };
