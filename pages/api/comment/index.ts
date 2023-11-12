@@ -42,8 +42,7 @@ const readComments: NextApiHandler = async (req, res) => {
         path: 'owner',
         select: 'name avatar',
       },
-    })
-    .select('createdAt likes content repliedTo');
+    });
 
   if (!comments) return res.json({ comments });
 

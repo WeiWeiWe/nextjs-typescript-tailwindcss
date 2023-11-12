@@ -8,6 +8,7 @@ import {
 } from 'react-icons/bs';
 import ProfileIcon from './ProfileIcon';
 import CommentForm from './CommentForm';
+import LikeHeart from './LikeHeart';
 import { CommentResponse } from '@/utils/types';
 
 interface IProps {
@@ -16,6 +17,7 @@ interface IProps {
   onUpdateSubmit?: (content: string) => void;
   onReplySubmit?: (content: string) => void;
   onDeleteClick?: () => void;
+  onLikeClick?: () => void;
 }
 
 const CommentCard: FC<IProps> = ({
@@ -24,8 +26,9 @@ const CommentCard: FC<IProps> = ({
   onUpdateSubmit,
   onReplySubmit,
   onDeleteClick,
+  onLikeClick,
 }) => {
-  const { owner, createdAt, content } = comment;
+  const { owner, createdAt, content, likedByOwner, likes } = comment;
   const { name, avatar } = owner;
   const [showForm, setShowForm] = useState(false);
   const [initialState, setInitialState] = useState('');
@@ -71,6 +74,11 @@ const CommentCard: FC<IProps> = ({
           {parse(content)}
         </div>
         <div className="flex space-x-4">
+          <LikeHeart
+            liked={likedByOwner}
+            label={likes + ' likes'}
+            onClick={onLikeClick}
+          />
           <Button onClick={handleOnReplyClick}>
             <BsFillReplyAllFill />
             <span>Reply</span>

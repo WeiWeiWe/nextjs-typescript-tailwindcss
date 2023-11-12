@@ -23,9 +23,9 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
     try {
       const newComment = await axios
         .post('/api/comment', { content, belongsTo })
-        .then(({ data }) => data?.comment || []);
+        .then(({ data }) => data?.comment);
 
-      if (newComment?.length > 0) {
+      if (newComment && Array.isArray(comments)) {
         setComments([...comments, newComment]);
       }
     } catch (err) {
@@ -121,6 +121,35 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
     setComments([...newComments]);
   };
 
+  const updateLikedComment = (likedComment: CommentResponse) => {
+    if (!Array.isArray(comments)) return;
+
+    let newComments = [...comments];
+
+    if (likedComment?.chiefComment) {
+      newComments = newComments.map((comment) => {
+        if (comment?.id === likedComment?.id) return likedComment;
+        return comment;
+      });
+    } else {
+      const chiefCommentIndex = newComments.findIndex(
+        ({ id }) => id === likedComment?.repliedTo
+      );
+
+      if (newComments[chiefCommentIndex]?.replies) {
+        const newReplies = newComments[chiefCommentIndex].replies?.map(
+          (reply) => {
+            if (reply?.id === likedComment?.id) return likedComment;
+            return reply;
+          }
+        );
+        newComments[chiefCommentIndex].replies = newReplies;
+      }
+    }
+
+    setComments([...newComments]);
+  };
+
   const handleUpdateSubmit = async (content: string, id: string) => {
     try {
       const newUpdateComment = await axios
@@ -162,13 +191,25 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
     }
   };
 
+  const handleOnLikeClick = async (comment: CommentResponse) => {
+    try {
+      const likedComment = await axios
+        .post('/api/comment/update-like', { commentId: comment?.id })
+        .then(({ data }) => data?.comment || {});
+
+      updateLikedComment(likedComment);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     axios(`/api/comment?belongsTo=${belongsTo}`)
       .then(({ data }) => {
         setComments(data?.comments || []);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }, [belongsTo]);
 
   return (
     <div className="py-20 space-y-4">
@@ -197,6 +238,7 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
                 handleUpdateSubmit(content, comment?.id);
               }}
               onDeleteClick={() => handleOnDeleteClick(comment)}
+              onLikeClick={() => handleOnLikeClick(comment)}
             />
             {replies?.length ? (
               <div className="w-[93%] ml-auto space-y-3">
@@ -214,6 +256,7 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
                         handleUpdateSubmit(content, reply?.id);
                       }}
                       onDeleteClick={() => handleOnDeleteClick(reply)}
+                      onLikeClick={() => handleOnLikeClick(reply)}
                     />
                   );
                 })}

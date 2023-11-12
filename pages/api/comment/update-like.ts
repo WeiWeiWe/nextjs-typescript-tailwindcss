@@ -1,6 +1,6 @@
 import { NextApiHandler } from 'next';
 import { isValidObjectId } from 'mongoose';
-import { isAuth } from '@/lib/utils';
+import { formatComment, isAuth } from '@/lib/utils';
 import dbConnect from '@/lib/dbConnect';
 import Comment from '@/models/Comment';
 
@@ -24,7 +24,19 @@ const updateLike: NextApiHandler = async (req, res) => {
     return res.status(422).json({ error: 'Invalid comment id!' });
 
   await dbConnect();
-  const comment = await Comment.findById(commentId);
+  const comment = await Comment.findById(commentId)
+    .populate({
+      path: 'owner',
+      select: 'name avatar',
+    })
+    .populate({
+      path: 'replies',
+      populate: {
+        path: 'owner',
+        select: 'name avatar',
+      },
+    });
+
   if (!comment) return res.status(404).json({ error: 'Comment not found!' });
 
   const oldLikes = comment?.likes || [];
@@ -39,7 +51,14 @@ const updateLike: NextApiHandler = async (req, res) => {
   }
 
   await comment.save();
-  res.status(201).json({ comment });
+  res.status(201).json({
+    comment: {
+      ...formatComment(comment, user),
+      replies: comment?.replies?.map((reply: any) =>
+        formatComment(reply, user)
+      ),
+    },
+  });
 };
 
 export default handler;
