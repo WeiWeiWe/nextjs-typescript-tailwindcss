@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FC } from 'react';
 import moment from 'moment';
 import { PostDetail } from '@/utils/types';
+import { trimText } from '@/utils/helper';
 
 interface IProps {
   post: PostDetail;
@@ -10,12 +11,6 @@ interface IProps {
   controls?: boolean;
   onDeleteClick?: () => void;
 }
-
-const trimText = (text: string, trimBy: number = 30) => {
-  if (text?.length <= trimBy) return text;
-
-  return text?.substring(0, trimBy).trim() + '...';
-};
 
 const PostCard: FC<IProps> = ({
   controls = false,
