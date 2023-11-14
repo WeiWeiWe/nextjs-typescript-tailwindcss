@@ -1,40 +1,61 @@
 import { NextPage } from 'next';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import AdminLayout from '@/components/layout/AdminLayout';
 import ContentWrapper from '@/components/admin/ContentWrapper';
 import LatestPostListCard from '@/components/admin/LatestPostListCard';
 import LatestCommentListCard from '@/components/admin/LatestCommentListCard';
+import { PostDetail, LatestComment } from '@/utils/types';
 
 interface IProps {}
 
 const Admin: NextPage<IProps> = () => {
+  const [latestPosts, setLatestPosts] = useState<PostDetail[]>();
+  const [latestComments, setLatestComments] = useState<LatestComment[]>();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const posts = await axios('/api/posts?limit=5&skip=0').then(
+          ({ data }) => {
+            return data?.posts;
+          }
+        );
+        const comments = await axios('/api/comment/latest').then(({ data }) => {
+          return data?.comments;
+        });
+
+        setLatestPosts(posts);
+        setLatestComments(comments);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
     <div>
       <AdminLayout>
         <div className="flex space-x-10">
-          <ContentWrapper title="Latest Posts" seeAllRoute="/admin">
-            <LatestPostListCard
-              title="This is my title"
-              slug="this-is-slug"
-              meta=" Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui deleniti magnam dolor, sint modi itaque nostrum dolores similique. Saepe temporibus veritatis ex earum illum beatae perferendis repellendus maiores sapiente exercitationem nihil et voluptas nostrum, accusantium fugiat reprehenderit odio ratione aut, sit, cum sint fuga magnam possimus maxime. Nisi tenetur quisquam, accusamus molestias porro praesentium voluptatem aut eos ipsum corporis fuga ducimus consequuntur dicta maxime optio facilis quas harum quia provident. Expedita voluptate, illo in magni soluta sed perspiciatis mollitia eos, dolore sint amet eius cupiditate deserunt? Dolorum delectus expedita nihil impedit inventore totam voluptates, officia beatae, dolorem porro dolor praesentium!"
-            />
+          <ContentWrapper title="Latest Posts" seeAllRoute="/admin/posts">
+            {latestPosts?.map(({ id, title, meta, slug }) => {
+              return (
+                <LatestPostListCard
+                  key={id}
+                  title={title}
+                  meta={meta}
+                  slug={slug}
+                />
+              );
+            })}
           </ContentWrapper>
           <ContentWrapper title="Latest Comments" seeAllRoute="/admin">
-            <LatestCommentListCard
-              comment={{
-                id: 'commentId1',
-                owner: {
-                  id: 'ownerId1',
-                  name: 'ownerTitle',
-                  avatar: '',
-                },
-                belongsTo: {
-                  id: 'belongsToId1',
-                  title: 'belongsToTitle',
-                  slug: '',
-                },
-                content: '<p>Comment Content</p>',
-              }}
-            />
+            {latestComments?.map((comment) => {
+              return (
+                <LatestCommentListCard key={comment?.id} comment={comment} />
+              );
+            })}
           </ContentWrapper>
         </div>
       </AdminLayout>

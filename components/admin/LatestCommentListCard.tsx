@@ -2,22 +2,8 @@ import { FC } from 'react';
 import parse from 'html-react-parser';
 import { BsBoxArrowUpRight } from 'react-icons/bs';
 import ProfileIcon from '../common/ProfileIcon';
+import { LatestComment } from '@/utils/types';
 import { trimText } from '@/utils/helper';
-
-interface LatestComment {
-  id: string;
-  owner: {
-    id: string;
-    name: string;
-    avatar?: string;
-  };
-  belongsTo: {
-    id: string;
-    title: string;
-    slug: string;
-  };
-  content: string;
-}
 
 interface IProps {
   comment: LatestComment;
