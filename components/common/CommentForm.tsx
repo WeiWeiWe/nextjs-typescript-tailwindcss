@@ -7,6 +7,7 @@ interface IProps {
   title?: string;
   busy?: boolean;
   initialState?: string;
+  visible?: boolean;
   onSubmit: (content: string) => void;
   onClose?: () => void;
 }
@@ -15,6 +16,7 @@ const CommentForm: FC<IProps> = ({
   title,
   busy = false,
   initialState,
+  visible = true,
   onSubmit,
   onClose,
 }) => {
@@ -35,6 +37,8 @@ const CommentForm: FC<IProps> = ({
       editor?.chain()?.focus()?.setContent(initialState)?.run();
     }
   }, [editor, initialState]);
+
+  if (!visible) return null;
 
   return (
     <div>

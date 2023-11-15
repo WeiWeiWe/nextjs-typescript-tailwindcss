@@ -6,14 +6,20 @@ import { GitHubAuthButton } from '../button';
 import useAuth from '@/hooks/useAuth';
 import { CommentResponse } from '@/utils/types';
 import ConfirmModal from './ConfirmModal';
+import PageNavigator from './PageNavigator';
 
 interface IProps {
-  belongsTo: string;
+  belongsTo?: string;
+  fetchAll?: boolean;
 }
 
-const Comments: FC<IProps> = ({ belongsTo }) => {
+const LIMIT = 5;
+let currentPageNo = 0;
+
+const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [reachedToEnd, setReachedToEnd] = useState(false);
   const [commentToDelete, setCommentToDelete] =
     useState<CommentResponse | null>(null);
 
@@ -203,7 +209,40 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
     }
   };
 
+  const fetchAllComments = async (pageNo: number = currentPageNo) => {
+    try {
+      const { data } = await axios(
+        `/api/comment/all?pageNo=${pageNo}&limit=${LIMIT}`
+      );
+
+      if (!data?.comments?.length) {
+        currentPageNo--;
+        return setReachedToEnd(true);
+      }
+
+      setComments(data?.comments || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleOnNextClick = () => {
+    if (reachedToEnd) return;
+
+    currentPageNo++;
+    fetchAllComments(currentPageNo);
+  };
+
+  const handleOnPrevClick = () => {
+    if (currentPageNo <= 0) return;
+    if (reachedToEnd) setReachedToEnd(false);
+
+    currentPageNo--;
+    fetchAllComments(currentPageNo);
+  };
+
   useEffect(() => {
+    if (!belongsTo) return;
     axios(`/api/comment?belongsTo=${belongsTo}`)
       .then(({ data }) => {
         setComments(data?.comments || []);
@@ -211,10 +250,20 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
       .catch((err) => console.error(err));
   }, [belongsTo]);
 
+  useEffect(() => {
+    if (!belongsTo && fetchAll) {
+      fetchAllComments();
+    }
+  }, [belongsTo, fetchAll]);
+
   return (
     <div className="py-20 space-y-4">
       {userProfile ? (
-        <CommentForm title="Add comment" onSubmit={handleNewCommentSubmit} />
+        <CommentForm
+          visible={!fetchAll}
+          title="Add comment"
+          onSubmit={handleNewCommentSubmit}
+        />
       ) : (
         <div className="flex flex-col items-end space-y-2">
           <h3 className="text-secondary-dark text-xl font-semibold">
@@ -265,6 +314,14 @@ const Comments: FC<IProps> = ({ belongsTo }) => {
           </div>
         );
       })}
+      {fetchAll && (
+        <div className="py-10 flex justify-end">
+          <PageNavigator
+            onNextClick={handleOnNextClick}
+            onPreClick={handleOnPrevClick}
+          />
+        </div>
+      )}
       <ConfirmModal
         visible={showConfirmModal}
         title="Are you sure?"
