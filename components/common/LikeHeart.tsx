@@ -15,7 +15,7 @@ const LikeHeart: FC<IProps> = ({ liked = false, label, onClick }) => {
       onClick={onClick}
     >
       {liked ? <BsHeartFill color="#4790FD" /> : <BsHeart />}
-      <span>{label}</span>
+      <span className="hover:underline">{label}</span>
     </button>
   );
 };

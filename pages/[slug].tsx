@@ -5,17 +5,59 @@ import {
   InferGetStaticPropsType,
 } from 'next';
 import Image from 'next/image';
+import { signIn } from 'next-auth/react';
+import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import moment from 'moment';
 import parse from 'html-react-parser';
+import useAuth from '@/hooks/useAuth';
 import DefaultLayout from '@/components/layout/DefaultLayout';
 import Comments from '@/components/common/Comments';
+import LikeHeart from '@/components/common/LikeHeart';
 import dbConnect from '@/lib/dbConnect';
 import Post from '@/models/Post';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SinglePost: NextPage<Props> = ({ post }) => {
+  const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
   const { id, title, content, tags, meta, thumbnail, createdAt } = post;
+
+  const user = useAuth();
+
+  const getLikeLabel = useCallback((): string => {
+    const { likedByOwner, count } = likes;
+
+    if (likedByOwner && count === 1) return 'You liked this post.';
+
+    if (likedByOwner) return `You and ${count - 1} other likes this post.`;
+
+    if (count === 0) return 'Like post.';
+
+    return count + ' people liked this post.';
+  }, [likes]);
+
+  const handleOnLikeClick = async () => {
+    try {
+      if (!user) return await signIn('github');
+      const { data } = await axios.post(`/api/posts/update-like?postId=${id}`);
+      console.log(data?.newLikes);
+      setLikes({ likedByOwner: !likes.likedByOwner, count: data?.newLikes });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    axios(`/api/posts/like-status?postId=${id}`)
+      .then(({ data }) =>
+        setLikes({
+          likedByOwner: data?.likedByOwner || false,
+          count: data?.likesCount || 0,
+        })
+      )
+      .catch((error) => console.error(error));
+  }, []);
 
   return (
     <DefaultLayout title={title} desc={meta}>
@@ -40,6 +82,13 @@ const SinglePost: NextPage<Props> = ({ post }) => {
         </div>
         <div className="prose prose-lg dark:prose-invert max-w-full mx-auto">
           {parse(content)}
+        </div>
+        <div className="py-10">
+          <LikeHeart
+            liked={likes.likedByOwner}
+            label={getLikeLabel()}
+            onClick={handleOnLikeClick}
+          />
         </div>
         <Comments belongsTo={id} />
       </div>
