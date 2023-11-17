@@ -47,9 +47,9 @@ const UserNav: FC<IProps> = () => {
     <div className="flex items-center justify-between bg-primary-dark p-3">
       {/* Logo */}
       <Link href="/">
-        <a className="flex space-x-2 text-highlight-dark">
-          <Logo className="fill-highlight-dark" />
-          <span className="text-xl font-semibold">{APP_NAME}</span>
+        <a className="flex items-center space-x-2 text-highlight-dark">
+          <Logo className="fill-highlight-dark w-5 h-5 md:w-8 md:h-8" />
+          <span className="md:text-xl font-semibold">{APP_NAME}</span>
         </a>
       </Link>
       <div className="flex items-center space-x-5">
@@ -62,7 +62,13 @@ const UserNav: FC<IProps> = () => {
         {isAuth ? (
           <DropdownOptions
             options={dropDownOptions}
-            head={<ProfileHead nameInitial="N" lightOnly />}
+            head={
+              <ProfileHead
+                nameInitial={profile?.name?.[0]?.toUpperCase()}
+                avatar={profile?.avatar}
+                lightOnly
+              />
+            }
           />
         ) : (
           <GitHubAuthButton lightOnly />
