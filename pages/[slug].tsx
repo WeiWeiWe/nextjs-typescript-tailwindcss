@@ -14,14 +14,16 @@ import useAuth from '@/hooks/useAuth';
 import DefaultLayout from '@/components/layout/DefaultLayout';
 import Comments from '@/components/common/Comments';
 import LikeHeart from '@/components/common/LikeHeart';
+import AuthorInfo from '@/components/common/AuthorInfo';
 import dbConnect from '@/lib/dbConnect';
 import Post from '@/models/Post';
+import User from '@/models/User';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SinglePost: NextPage<Props> = ({ post }) => {
   const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
-  const { id, title, content, tags, meta, thumbnail, createdAt } = post;
+  const { id, title, content, tags, meta, thumbnail, createdAt, author } = post;
 
   const user = useAuth();
 
@@ -90,6 +92,9 @@ const SinglePost: NextPage<Props> = ({ post }) => {
             onClick={handleOnLikeClick}
           />
         </div>
+        <div className="pt-10">
+          {author && <AuthorInfo profile={JSON.parse(author)} />}
+        </div>
         <Comments belongsTo={id} />
       </div>
     </DefaultLayout>
@@ -123,6 +128,7 @@ interface StaticPropsResponse {
     slug: string;
     thumbnail: string;
     createdAt: string;
+    author: string;
   };
 }
 
@@ -132,11 +138,33 @@ export const getStaticProps: GetStaticProps<
 > = async ({ params }) => {
   try {
     await dbConnect();
-    const post = await Post.findOne({ slug: params?.slug });
+    const post = await Post.findOne({ slug: params?.slug }).populate('author');
     if (!post) return { notFound: true };
 
-    const { _id, title, content, meta, slug, tags, thumbnail, createdAt } =
-      post;
+    const {
+      _id,
+      title,
+      content,
+      meta,
+      slug,
+      tags,
+      thumbnail,
+      createdAt,
+      author,
+    } = post;
+
+    const admin = await User.findOne({ role: 'admin' });
+    const authorInfo = (author || admin) as any;
+
+    const postAuthor = {
+      id: authorInfo?._id,
+      name: authorInfo?.name,
+      avatar: authorInfo?.avatar,
+      message: `This post is written by ${authorInfo?.name}. ${
+        authorInfo?.name?.split(' ')[0]
+      } is an full stack developer.
+            }`,
+    };
 
     return {
       props: {
@@ -149,6 +177,7 @@ export const getStaticProps: GetStaticProps<
           tags,
           thumbnail: thumbnail?.url || '',
           createdAt: createdAt.toString(),
+          author: JSON.stringify(postAuthor),
         },
       },
     };

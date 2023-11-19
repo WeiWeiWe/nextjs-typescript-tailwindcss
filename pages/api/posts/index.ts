@@ -2,7 +2,13 @@ import { NextApiHandler } from 'next';
 import formidable from 'formidable';
 import dbConnect from '@/lib/dbConnect';
 import { validateSchema, postValidationSchema } from '@/lib/validator';
-import { formatPosts, isAdmin, readFile, readPostsFromDb } from '@/lib/utils';
+import {
+  formatPosts,
+  isAdmin,
+  isAuth,
+  readFile,
+  readPostsFromDb,
+} from '@/lib/utils';
 import Post from '@/models/Post';
 import { IncomingPost } from '@/utils/types';
 
@@ -23,7 +29,9 @@ const handler: NextApiHandler = async (req, res) => {
 
 const createNewPost: NextApiHandler = async (req, res) => {
   const admin = await isAdmin(req, res);
-  if (!admin) return res.status(401).json({ error: 'unauthorized request!' });
+  const user = await isAuth(req, res);
+  if (!admin || !user)
+    return res.status(401).json({ error: 'unauthorized request!' });
 
   const { files, body } = await readFile<IncomingPost>(req);
 
@@ -52,6 +60,7 @@ const createNewPost: NextApiHandler = async (req, res) => {
     slug,
     meta,
     tags,
+    author: user.id,
   });
 
   const thumbnail = files?.thumbnail as formidable.File;
