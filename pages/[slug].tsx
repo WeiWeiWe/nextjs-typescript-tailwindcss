@@ -15,14 +15,18 @@ import DefaultLayout from '@/components/layout/DefaultLayout';
 import Comments from '@/components/common/Comments';
 import LikeHeart from '@/components/common/LikeHeart';
 import AuthorInfo from '@/components/common/AuthorInfo';
+import Share from '@/components/common/Share';
 import dbConnect from '@/lib/dbConnect';
 import Post from '@/models/Post';
 import User from '@/models/User';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
+const host = 'http://localhost:3000';
+
 const SinglePost: NextPage<Props> = ({ post }) => {
-  const { id, title, content, tags, meta, thumbnail, createdAt, author } = post;
+  const { id, title, content, tags, meta, thumbnail, createdAt, author, slug } =
+    post;
 
   const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
   const [liking, setLiking] = useState(false);
@@ -86,6 +90,9 @@ const SinglePost: NextPage<Props> = ({ post }) => {
               ? moment(createdAt).format('YYYY-MM-DD')
               : moment().format('YYYY-MM-DD')}
           </span>
+        </div>
+        <div className="py-5 sticky top-0 z-50 bg-primary dark:bg-primary-dark transition">
+          <Share url={host + '/' + slug} />
         </div>
         <div className="prose prose-lg dark:prose-invert max-w-full mx-auto">
           {parse(content)}
