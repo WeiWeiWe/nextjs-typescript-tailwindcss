@@ -20,6 +20,10 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
   const [comments, setComments] = useState<CommentResponse[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [reachedToEnd, setReachedToEnd] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [busyCommentLike, setBusyCommentLike] = useState(false);
+  const [selectedComment, setSelectedComment] =
+    useState<CommentResponse | null>(null);
   const [commentToDelete, setCommentToDelete] =
     useState<CommentResponse | null>(null);
 
@@ -27,6 +31,7 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
 
   const handleNewCommentSubmit = async (content: string) => {
     try {
+      setSubmitting(true);
       const newComment = await axios
         .post('/api/comment', { content, belongsTo })
         .then(({ data }) => data?.comment);
@@ -34,8 +39,10 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
       if (newComment && Array.isArray(comments)) {
         setComments([...comments, newComment]);
       }
+      setSubmitting(false);
     } catch (err) {
       console.error(err);
+      setSubmitting(false);
     }
   };
 
@@ -199,13 +206,19 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
 
   const handleOnLikeClick = async (comment: CommentResponse) => {
     try {
+      setBusyCommentLike(true);
+      setSelectedComment(comment);
       const likedComment = await axios
         .post('/api/comment/update-like', { commentId: comment?.id })
         .then(({ data }) => data?.comment || {});
+      setBusyCommentLike(false);
+      setSelectedComment(null);
 
       updateLikedComment(likedComment);
     } catch (err) {
       console.error(err);
+      setBusyCommentLike(false);
+      setSelectedComment(null);
     }
   };
 
@@ -261,6 +274,7 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
       {userProfile ? (
         <CommentForm
           visible={!fetchAll}
+          busy={submitting}
           title="Add comment"
           onSubmit={handleNewCommentSubmit}
         />
@@ -278,6 +292,7 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
         return (
           <div key={comment?.id}>
             <CommentCard
+              busy={selectedComment?.id === comment?.id && busyCommentLike}
               comment={comment}
               showControls={userProfile?.id === comment?.owner?.id}
               onReplySubmit={(content) => {
@@ -296,6 +311,9 @@ const Comments: FC<IProps> = ({ belongsTo, fetchAll }) => {
                   return (
                     <CommentCard
                       key={reply?.id}
+                      busy={
+                        selectedComment?.id === reply?.id && busyCommentLike
+                      }
                       comment={reply}
                       showControls={userProfile?.id === reply?.owner?.id}
                       onReplySubmit={(content) => {

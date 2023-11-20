@@ -51,7 +51,7 @@ const CommentForm: FC<IProps> = ({
         className="min-h-[200px] border-2 border-secondary-dark rounded p-2"
         editor={editor}
       />
-      <div className="flex justify-end py-3">
+      <div className="md:flex justify-end py-3">
         <div className="flex space-x-4">
           <ActionButton busy={busy} title="Submit" onClick={handleSubmit} />
           {onClose ? (

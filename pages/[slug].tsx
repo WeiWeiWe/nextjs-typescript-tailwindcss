@@ -22,8 +22,10 @@ import User from '@/models/User';
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SinglePost: NextPage<Props> = ({ post }) => {
-  const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
   const { id, title, content, tags, meta, thumbnail, createdAt, author } = post;
+
+  const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
+  const [liking, setLiking] = useState(false);
 
   const user = useAuth();
 
@@ -40,13 +42,16 @@ const SinglePost: NextPage<Props> = ({ post }) => {
   }, [likes]);
 
   const handleOnLikeClick = async () => {
+    if (!user) return await signIn('github');
+
     try {
-      if (!user) return await signIn('github');
+      setLiking(true);
       const { data } = await axios.post(`/api/posts/update-like?postId=${id}`);
-      console.log(data?.newLikes);
+      setLiking(false);
       setLikes({ likedByOwner: !likes.likedByOwner, count: data?.newLikes });
     } catch (error) {
       console.error(error);
+      setLiking(false);
     }
   };
 
@@ -87,9 +92,10 @@ const SinglePost: NextPage<Props> = ({ post }) => {
         </div>
         <div className="py-10">
           <LikeHeart
+            busy={liking}
             liked={likes.likedByOwner}
             label={getLikeLabel()}
-            onClick={handleOnLikeClick}
+            onClick={!liking ? handleOnLikeClick : undefined}
           />
         </div>
         <div className="pt-10">

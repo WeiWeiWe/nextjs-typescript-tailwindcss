@@ -12,6 +12,7 @@ import LikeHeart from './LikeHeart';
 import { CommentResponse } from '@/utils/types';
 
 interface IProps {
+  busy?: boolean;
   comment: CommentResponse;
   showControls?: boolean;
   onUpdateSubmit?: (content: string) => void;
@@ -21,6 +22,7 @@ interface IProps {
 }
 
 const CommentCard: FC<IProps> = ({
+  busy,
   comment,
   showControls = false,
   onUpdateSubmit,
@@ -75,6 +77,7 @@ const CommentCard: FC<IProps> = ({
         </div>
         <div className="flex space-x-4">
           <LikeHeart
+            busy={busy}
             liked={likedByOwner}
             label={likes + ' likes'}
             onClick={onLikeClick}
