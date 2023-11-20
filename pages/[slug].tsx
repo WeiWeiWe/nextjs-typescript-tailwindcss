@@ -5,6 +5,7 @@ import {
   InferGetStaticPropsType,
 } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
@@ -25,8 +26,18 @@ type Props = InferGetStaticPropsType<typeof getStaticProps>;
 const host = 'http://localhost:3000';
 
 const SinglePost: NextPage<Props> = ({ post }) => {
-  const { id, title, content, tags, meta, thumbnail, createdAt, author, slug } =
-    post;
+  const {
+    id,
+    title,
+    content,
+    tags,
+    meta,
+    thumbnail,
+    createdAt,
+    author,
+    slug,
+    relatedPosts,
+  } = post;
 
   const [likes, setLikes] = useState({ likedByOwner: false, count: 0 });
   const [liking, setLiking] = useState(false);
@@ -108,6 +119,22 @@ const SinglePost: NextPage<Props> = ({ post }) => {
         <div className="pt-10">
           {author && <AuthorInfo profile={JSON.parse(author)} />}
         </div>
+        <div className="pt-5">
+          <h3 className="text-xl font-semibold bg-secondary-dark text-primary p-2 mb-4">
+            Related Posts:
+          </h3>
+          <div className="flex flex-col space-y-4">
+            {relatedPosts?.map((p) => {
+              return (
+                <Link key={p?.slug} href={p?.slug}>
+                  <a className="font-semibold text-primary-dark dark:text-primary hover:underline">
+                    {p?.title}
+                  </a>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
         <Comments belongsTo={id} />
       </div>
     </DefaultLayout>
@@ -142,6 +169,11 @@ interface StaticPropsResponse {
     thumbnail: string;
     createdAt: string;
     author: string;
+    relatedPosts: {
+      id: string;
+      title: string;
+      slug: string;
+    }[];
   };
 }
 
@@ -153,6 +185,23 @@ export const getStaticProps: GetStaticProps<
     await dbConnect();
     const post = await Post.findOne({ slug: params?.slug }).populate('author');
     if (!post) return { notFound: true };
+
+    // fetching related posts according to tags
+    const posts = await Post.find({
+      tags: { $in: [...(post?.tags || [])] },
+      _id: { $ne: post?.id },
+    })
+      .sort({ createdAt: 'desc' })
+      .limit(5)
+      .select('slug title');
+
+    const relatedPosts = posts?.map((p) => {
+      return {
+        id: p?._id?.toString(),
+        title: p?.title,
+        slug: p?.slug,
+      };
+    });
 
     const {
       _id,
@@ -191,6 +240,7 @@ export const getStaticProps: GetStaticProps<
           thumbnail: thumbnail?.url || '',
           createdAt: createdAt.toString(),
           author: JSON.stringify(postAuthor),
+          relatedPosts,
         },
       },
     };
