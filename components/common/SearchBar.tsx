@@ -1,14 +1,28 @@
-import { FC } from 'react';
+import { FC, FormEventHandler, useState } from 'react';
 
-interface IProps {}
+interface IProps {
+  onSubmit: (query: string) => void;
+}
 
-const SearchBar: FC<IProps> = () => {
+const SearchBar: FC<IProps> = ({ onSubmit }) => {
+  const [query, setQuery] = useState('');
+
+  const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault();
+
+    onSubmit(query);
+  };
+
   return (
-    <input
-      type="text"
-      placeholder="search..."
-      className="border-2 bg-transparent border-secondary-dark p-2 text-primary-dark dark:text-primary rounded focus:border-primary-dark dark:focus:border-primary outline-none transition"
-    />
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        placeholder="search..."
+        className="border-2 bg-transparent border-secondary-dark p-2 text-primary-dark dark:text-primary rounded focus:border-primary-dark dark:focus:border-primary outline-none transition"
+        value={query}
+        onChange={({ target }) => setQuery(target.value)}
+      />
+    </form>
   );
 };
 
